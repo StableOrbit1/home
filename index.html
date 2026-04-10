@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stable Orbit | Thought Accelerator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #131B2A;
+            color: #F4F1EB;
+        }
+        .text-rust { color: #D95D39; }
+        .bg-rust { background-color: #D95D39; }
+        .border-rust { border-color: #D95D39; }
+        .text-gold { color: #E6B05C; }
+        .bg-gold { background-color: #E6B05C; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #131B2A; }
+        ::-webkit-scrollbar-thumb { background: #1D2A40; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #D95D39; }
+
+        .glass-nav {
+            background: rgba(19, 27, 42, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        .timeline-line {
+            background: linear-gradient(to bottom, transparent, #1D2A40 10%, #1D2A40 90%, transparent);
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+    </style>
+</head>
+<body class="selection:bg-[#D95D39] selection:text-white">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass-nav border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3 cursor-pointer group">
+                    <div class="relative flex items-center justify-center w-10 h-10 rounded-full border-2 border-rust group-hover:rotate-12 transition-transform">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-rust absolute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M3 20c0-2.209 1.791-4 4-4h10c2.209 0 4 1.791 4 4"/><path d="M7 16V4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v12"/></svg>
+                    </div>
+                    <div>
+                        <span class="font-bold text-2xl tracking-wider uppercase block leading-none">Stable Orbit</span>
+                        <span class="text-[10px] text-gold tracking-[0.3em] uppercase font-semibold block mt-1">A Thought Accelerator</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#about" class="text-sm font-medium hover:text-rust transition-colors">Experience</a>
+                    <a href="#solutions" class="text-sm font-medium hover:text-rust transition-colors">Solutions</a>
+                    <a href="#methodology" class="text-sm font-medium hover:text-rust transition-colors">Methodology</a>
+                    <button class="bg-rust text-white px-6 py-2 rounded-full font-semibold hover:bg-[#BF4F2F] transition-all shadow-lg shadow-orange-900/20">
+                        Start Mission
+                    </button>
+                </div>
+
+                <!-- Mobile Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="menu-btn" class="text-gray-300 focus:outline-none">
+                        <svg id="menu-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m4 6h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Nav -->
+        <div id="mobile-menu" class="hidden md:hidden bg-[#1D2A40] border-b border-gray-800 animate-in fade-in slide-in-from-top-4 duration-300">
+            <div class="px-4 pt-4 pb-6 space-y-2">
+                <a href="#about" class="block px-3 py-3 rounded-md text-base font-medium hover:bg-gray-800">Experience</a>
+                <a href="#solutions" class="block px-3 py-3 rounded-md text-base font-medium hover:bg-gray-800">Solutions</a>
+                <a href="#methodology" class="block px-3 py-3 rounded-md text-base font-medium hover:bg-gray-800">Methodology</a>
+                <div class="pt-4">
+                    <button class="w-full bg-rust text-white px-6 py-3 rounded-full font-bold">Start Mission</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+        <!-- Background Orbs -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-rust rounded-full blur-[150px] opacity-10 pointer-events-none"></div>
+        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-gold rounded-full blur-[120px] opacity-5 pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <div class="inline-flex items-center space-x-2 border border-gray-700 rounded-full px-4 py-1.5 mb-8 bg-gray-900/50 backdrop-blur-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg>
+                <span class="text-[10px] font-bold tracking-widest uppercase">Est. 2026</span>
+            </div>
+            
+            <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-8">
+                Reach Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#D95D39] to-[#E6B05C]">Stable Orbit</span>
+            </h1>
+            
+            <p class="mt-4 max-w-3xl mx-auto text-xl md:text-2xl text-[#A3B1C6] leading-relaxed">
+                Through a quarter century of experience, application, frameworks and methodologies, I help you get where you need to go, <strong class="text-white font-semibold border-b-2 border-rust">fractionally</strong>, when needed.
+            </p>
+            
+            <div class="mt-12 flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <button class="bg-rust hover:bg-[#BF4F2F] text-white px-8 py-4 rounded-full text-lg font-bold transition-all transform hover:scale-105 flex items-center shadow-[0_0_20px_rgba(217,93,57,0.3)] group">
+                    Launch Your Project 
+                    <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-5c1.62-2.2 5-3 5-3"/><path d="M12 15v5s3.03-.55 5-2c2.2-1.62 3-5 3-5"/></svg>
+                </button>
+                <a href="#methodology" class="bg-transparent border border-gray-600 hover:border-gold text-[#F4F1EB] px-8 py-4 rounded-full text-lg font-bold transition-all flex items-center">
+                    View Methodology
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Banner -->
+    <div class="w-full bg-gradient-to-r from-[#D95D39] via-[#bf4f2f] to-[#D95D39] py-5">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="font-bold tracking-[0.3em] uppercase text-sm md:text-base text-white">
+                Applied Knowledge. Accelerated Results.
+            </p>
+        </div>
+    </div>
+
+    <!-- Solutions / Pillars -->
+    <section id="solutions" class="py-24 relative z-10 bg-[#0F1622]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">25 Years Experience Applied</h2>
+                <div class="w-24 h-1 bg-rust mx-auto rounded-full"></div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Pillar 1 -->
+                <div class="bg-[#1D2A40] p-10 rounded-2xl border border-gray-800 hover:border-rust/40 transition-all group">
+                    <div class="w-14 h-14 bg-gray-900 rounded-xl flex items-center justify-center border border-gray-700 mb-6 group-hover:scale-110 group-hover:bg-rust/10 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-rust" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">B2B & B2C Experience</h3>
+                    <p class="text-[#A3B1C6] leading-relaxed">
+                        Deep industry knowledge bridging business-to-business and consumer markets, grounded in 25 years of hands-on execution.
+                    </p>
+                </div>
+
+                <!-- Pillar 2 -->
+                <div class="bg-[#1D2A40] p-10 rounded-2xl border border-gray-800 hover:border-gold/40 transition-all group">
+                    <div class="w-14 h-14 bg-gray-900 rounded-xl flex items-center justify-center border border-gray-700 mb-6 group-hover:scale-110 group-hover:bg-gold/10 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Frameworks & Methods</h3>
+                    <p class="text-[#A3B1C6] leading-relaxed">
+                        Strategic blueprints designed to streamline complexity and provide a clear, actionable path forward for any initiative.
+                    </p>
+                </div>
+
+                <!-- Pillar 3 -->
+                <div class="bg-[#1D2A40] p-10 rounded-2xl border border-gray-800 hover:border-rust/40 transition-all group">
+                    <div class="w-14 h-14 bg-gray-900 rounded-xl flex items-center justify-center border border-gray-700 mb-6 group-hover:scale-110 group-hover:bg-rust/10 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-rust" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Business Problem Solving</h3>
+                    <p class="text-[#A3B1C6] leading-relaxed">
+                        Targeted, fractional solutions engineered to overcome hurdles, optimize performance, and deliver measurable results.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Methodology Section -->
+    <section id="methodology" class="py-24 relative overflow-hidden">
+        <div class="absolute right-0 bottom-0 w-[600px] h-[600px] bg-[#1D2A40] rounded-full blur-[100px] opacity-20 pointer-events-none"></div>
+
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-20">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 uppercase tracking-wider">Project Methodology</h2>
+                <p class="text-xl text-gold font-serif italic">7-Stage Launch to Success</p>
+            </div>
+
+            <div class="relative">
+                <!-- Vertical Line -->
+                <div class="absolute left-4 md:left-1/2 top-0 bottom-0 w-1 bg-gray-800 transform md:-translate-x-1/2"></div>
+
+                <div class="space-y-16">
+                    <!-- Step 1 -->
+                    <div class="relative flex items-center md:justify-between md:flex-row">
+                        <div class="hidden md:block md:w-[45%]"></div>
+                        <div class="absolute left-0 md:left-1/2 w-8 h-8 rounded-full border-4 border-[#131B2A] bg-rust transform -translate-x-0 md:-translate-x-1/2 flex items-center justify-center z-10">
+                            <span class="text-white text-xs font-bold">1</span>
+                        </div>
+                        <div class="w-full ml-12 md:ml-0 md:w-[45%] bg-[#1D2A40] p-6 rounded-xl border border-gray-700 hover:border-gold transition-colors">
+                            <h4 class="text-xl font-bold mb-2 flex items-center">
+                                <span class="bg-gray-800 p-1.5 rounded mr-3 text-gold">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-1.42 4.24-4.24 1.42 1.42-4.24 4.24-1.42Z"/></svg>
+                                </span>
+                                Mission Architecture
+                            </h4>
+                            <p class="text-[#A3B1C6]">Concept & Scope, Objectives, Limits, Trajectory Planning</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="relative flex items-center md:justify-between md:flex-row-reverse">
+                        <div class="hidden md:block md:w-[45%]"></div>
+                        <div class="absolute left-0 md:left-1/2 w-8 h-8 rounded-full border-4 border-[#131B2A] bg-rust transform -translate-x-0 md:-translate-x-1/2 flex items-center justify-center z-10">
+                            <span class="text-white text-xs font-bold">2</span>
+                        </div>
+                        <div class="w-full ml-12 md:ml-0 md:w-[45%] bg-[#1D2A40] p-6 rounded-xl border border-gray-700 hover:border-gold transition-colors">
+                            <h4 class="text-xl font-bold mb-2 flex items-center">
+                                <span class="bg-gray-800 p-1.5 rounded mr-3 text-gold">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v8"/><path d="M16 2v8"/><path d="M2 22h20"/><path d="M13 22v-8"/><path d="M18 22V10a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v12"/></svg>
+                                </span>
+                                Prototyping & Simulation
+                            </h4>
+                            <p class="text-[#A3B1C6]">Modeling, Simulator Runs, Launch Scrubs</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="relative flex items-center md:justify-between md:flex-row">
+                        <div class="hidden md:block md:w-[45%]"></div>
+                        <div class="absolute left-0 md:left-1/2 w-8 h-8 rounded-full border-4 border-[#131B2A] bg-rust transform -translate-x-0 md:-translate-x-1/2 flex items-center justify-center z-10">
+                            <span class="text-white text-xs font-bold">3</span>
+                        </div>
+                        <div class="w-full ml-12 md:ml-0 md:w-[45%] bg-[#1D2A40] p-6 rounded-xl border border-gray-700 hover:border-gold transition-colors">
+                            <h4 class="text-xl font-bold mb-2 flex items-center">
+                                <span class="bg-gray-800 p-1.5 rounded mr-3 text-gold">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                                </span>
+                                Pre-Launch Prep
+                            </h4>
+                            <p class="text-[#A3B1C6]">Transit to Pad, Fueling Complete</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="relative flex items-center md:justify-between md:flex-row-reverse">
+                        <div class="hidden md:block md:w-[45%]"></div>
+                        <div class="absolute left-0 md:left-1/2 w-8 h-8 rounded-full border-4 border-[#131B2A] bg-rust transform -translate-x-0 md:-translate-x-1/2 flex items-center justify-center z-10">
+                            <span class="text-white text-xs font-bold">4</span>
+                        </div>
+                        <div class="w-full ml-12 md:ml-0 md:w-[45%] bg-[#1D2A40] p-6 rounded-xl border border-gray-700 hover:border-gold transition-colors">
+                            <h4 class="text-xl font-bold mb-2 flex items-center">
+                                <span class="bg-gray-800 p-1.5 rounded mr-3 text-gold">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/></svg>
+                                </span>
+                                Launch
+                            </h4>
+                            <p class="text-[#A3B1C6]">Ignition and liftoff. Putting the plan into immediate action.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 5 -->
+                    <div class="relative flex items-center md:justify-between md:flex-row">
+                        <div class="hidden md:block md:w-[45%]"></div>
+                        <div class="absolute left-0 md:left-1/2 w-8 h-8 rounded-full border-4 border-[#131B2A] bg-rust transform -translate-x-0 md:-translate-x-1/2 flex items-center justify-center z-10">
+                            <span class="text-white text-xs font-bold">5</span>
+                        </div>
+                        <div class="w-full ml-12 md:ml-0 md:w-[45%] bg-[#1D2A40] p-6 rounded-xl border border-gray-700 hover:border-gold transition-colors">
+                            <h4 class="text-xl font-bold mb-2 flex items-center">
+                                <span class="bg-gray-800 p-1.5 rounded mr-3 text-gold">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                </span>
+                                Transit & Escape
+                            </h4>
+                            <p class="text-[#A3B1C6]">Countdown, Omnidirection, Escape Velocity</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 6 -->
+                    <div class="relative flex items-center md:justify-between md:flex-row-reverse">
+                        <div class="hidden md:block md:w-[45%]"></div>
+                        <div class="absolute left-0 md:left-1/2 w-8 h-8 rounded-full border-4 border-[#131B2A] bg-rust transform -translate-x-0 md:-translate-x-1/2 flex items-center justify-center z-10">
+                            <span class="text-white text-xs font-bold">6</span>
+                        </div>
+                        <div class="w-full ml-12 md:ml-0 md:w-[45%] bg-[#1D2A40] p-6 rounded-xl border border-gray-700 hover:border-gold transition-colors">
+                            <h4 class="text-xl font-bold mb-2 flex items-center">
+                                <span class="bg-gray-800 p-1.5 rounded mr-3 text-gold">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                                </span>
+                                Monitor & Manage
+                            </h4>
+                            <p class="text-[#A3B1C6]">Telemetry, Corrections, Fly-by/Close Pass</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 7 -->
+                    <div class="relative flex items-center md:justify-between md:flex-row">
+                        <div class="hidden md:block md:w-[45%]"></div>
+                        <div class="absolute left-0 md:left-1/2 w-8 h-8 rounded-full border-4 border-[#131B2A] bg-rust transform -translate-x-0 md:-translate-x-1/2 flex items-center justify-center z-10">
+                            <span class="text-white text-xs font-bold">7</span>
+                        </div>
+                        <div class="w-full ml-12 md:ml-0 md:w-[45%] bg-[#1D2A40] p-6 rounded-xl border border-gray-700 hover:border-gold transition-colors">
+                            <h4 class="text-xl font-bold mb-2 flex items-center">
+                                <span class="bg-gray-800 p-1.5 rounded mr-3 text-gold">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 10V2"/><path d="M5 19.33 19 19.33"/><path d="M12 10 7 14"/><path d="M12 10 17 14"/><circle cx="12" cy="12" r="10"/></svg>
+                                </span>
+                                Stable Orbit
+                            </h4>
+                            <p class="text-[#A3B1C6]">Sustained Success, Data Acquisition, Next Mission</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-24 bg-[#1D2A40] relative border-t border-gray-800 overflow-hidden">
+        <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-rust mx-auto mb-6 opacity-80 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M3 20c0-2.209 1.791-4 4-4h10c2.209 0 4 1.791 4 4"/><path d="M7 16V4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v12"/></svg>
+            <h2 class="text-4xl font-bold mb-6">Ready to Accelerate Your Thoughts?</h2>
+            <p class="text-xl text-[#A3B1C6] mb-10">
+                Don't let complex challenges ground your business. Let's design the architecture for your next successful launch.
+            </p>
+            <button class="bg-rust text-white px-10 py-5 rounded-full text-xl font-bold hover:bg-[#BF4F2F] transition-all transform hover:-translate-y-1 shadow-lg shadow-orange-900/30 flex items-center mx-auto">
+                Initiate Contact 
+                <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-[#0B101A] py-16 border-t border-gray-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center space-x-2 mb-6 md:mb-0">
+                <div class="w-8 h-8 rounded-full border border-rust flex items-center justify-center">
+                    <div class="w-4 h-4 rounded-full bg-rust"></div>
+                </div>
+                <span class="font-bold text-xl tracking-wider uppercase">Stable Orbit</span>
+            </div>
+            
+            <div class="text-sm text-gray-500 mb-6 md:mb-0">
+                &copy; 2026 Stable Orbit. All rights reserved.
+            </div>
+            
+            <div class="flex space-x-8">
+                <a href="#" class="text-gray-400 hover:text-white transition-colors">LinkedIn</a>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors">Email</a>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const menuBtn = document.getElementById('menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+
+        menuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            const isHidden = mobileMenu.classList.contains('hidden');
+            
+            if (isHidden) {
+                menuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m4 6h16" />';
+            } else {
+                menuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />';
+            }
+        });
+
+        // Close mobile menu on link click
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+                menuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m4 6h16" />';
+            });
+        });
+    </script>
+</body>
+</html>
