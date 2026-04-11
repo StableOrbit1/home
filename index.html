@@ -41,6 +41,10 @@
             100% { transform: translateY(0px); }
         }
         .animate-float { animation: float 6s ease-in-out infinite; }
+        
+        .logo-glow {
+            filter: drop-shadow(0 0 15px rgba(217, 93, 57, 0.3));
+        }
     </style>
 </head>
 <body class="selection:bg-[#D95D39] selection:text-white">
@@ -51,12 +55,10 @@
             <div class="flex justify-between items-center h-20">
                 <!-- Logo -->
                 <div class="flex items-center space-x-3 cursor-pointer group">
-                    <div class="relative flex items-center justify-center w-10 h-10 rounded-full border-2 border-rust group-hover:rotate-12 transition-transform">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-rust absolute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M3 20c0-2.209 1.791-4 4-4h10c2.209 0 4 1.791 4 4"/><path d="M7 16V4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v12"/></svg>
-                    </div>
-                    <div>
-                        <span class="font-bold text-2xl tracking-wider uppercase block leading-none">Stable Orbit</span>
-                        <span class="text-[10px] text-gold tracking-[0.3em] uppercase font-semibold block mt-1">A Thought Accelerator</span>
+                    <img src="Screenshot 2026-04-10 at 7.56.58 PM.jpg" alt="Stable Orbit Logo" class="w-12 h-12 rounded-full logo-glow group-hover:scale-105 transition-transform">
+                    <div class="hidden sm:block">
+                        <span class="font-bold text-xl tracking-wider uppercase block leading-none">Stable Orbit</span>
+                        <span class="text-[9px] text-gold tracking-[0.3em] uppercase font-semibold block mt-1">Thought Accelerator</span>
                     </div>
                 </div>
 
@@ -95,15 +97,19 @@
     </nav>
 
     <!-- Hero Section -->
-    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+    <section class="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden">
         <!-- Background Orbs -->
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-rust rounded-full blur-[150px] opacity-10 pointer-events-none"></div>
-        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-gold rounded-full blur-[120px] opacity-5 pointer-events-none"></div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-            <div class="inline-flex items-center space-x-2 border border-gray-700 rounded-full px-4 py-1.5 mb-8 bg-gray-900/50 backdrop-blur-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg>
-                <span class="text-[10px] font-bold tracking-widest uppercase">Est. 2026</span>
+            <!-- Central Logo Placement -->
+            <div class="mb-10 flex justify-center">
+                <div class="relative">
+                    <img src="Screenshot 2026-04-10 at 7.56.58 PM.jpg" alt="Stable Orbit Logo" class="w-32 h-32 md:w-48 md:h-48 rounded-full logo-glow animate-float">
+                    <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-gray-900/80 backdrop-blur px-4 py-1 rounded-full border border-gray-700">
+                        <span class="text-[10px] font-bold tracking-widest uppercase text-gold">Est. 2026</span>
+                    </div>
+                </div>
             </div>
             
             <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-8">
@@ -135,7 +141,7 @@
         </div>
     </div>
 
-    <!-- Solutions / Pillars -->
+    <!-- Solutions Section -->
     <section id="solutions" class="py-24 relative z-10 bg-[#0F1622]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
@@ -195,121 +201,80 @@
                 <div class="absolute left-4 md:left-1/2 top-0 bottom-0 w-1 bg-gray-800 transform md:-translate-x-1/2"></div>
 
                 <div class="space-y-16">
-                    <!-- Step 1 -->
+                    <!-- Steps 1-7 (Mapped from slide data) -->
                     <div class="relative flex items-center md:justify-between md:flex-row">
                         <div class="hidden md:block md:w-[45%]"></div>
                         <div class="absolute left-0 md:left-1/2 w-8 h-8 rounded-full border-4 border-[#131B2A] bg-rust transform -translate-x-0 md:-translate-x-1/2 flex items-center justify-center z-10">
                             <span class="text-white text-xs font-bold">1</span>
                         </div>
                         <div class="w-full ml-12 md:ml-0 md:w-[45%] bg-[#1D2A40] p-6 rounded-xl border border-gray-700 hover:border-gold transition-colors">
-                            <h4 class="text-xl font-bold mb-2 flex items-center">
-                                <span class="bg-gray-800 p-1.5 rounded mr-3 text-gold">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-1.42 4.24-4.24 1.42 1.42-4.24 4.24-1.42Z"/></svg>
-                                </span>
-                                Mission Architecture
-                            </h4>
+                            <h4 class="text-xl font-bold mb-2 flex items-center text-gold">Mission Architecture</h4>
                             <p class="text-[#A3B1C6]">Concept & Scope, Objectives, Limits, Trajectory Planning</p>
                         </div>
                     </div>
 
-                    <!-- Step 2 -->
                     <div class="relative flex items-center md:justify-between md:flex-row-reverse">
                         <div class="hidden md:block md:w-[45%]"></div>
                         <div class="absolute left-0 md:left-1/2 w-8 h-8 rounded-full border-4 border-[#131B2A] bg-rust transform -translate-x-0 md:-translate-x-1/2 flex items-center justify-center z-10">
                             <span class="text-white text-xs font-bold">2</span>
                         </div>
                         <div class="w-full ml-12 md:ml-0 md:w-[45%] bg-[#1D2A40] p-6 rounded-xl border border-gray-700 hover:border-gold transition-colors">
-                            <h4 class="text-xl font-bold mb-2 flex items-center">
-                                <span class="bg-gray-800 p-1.5 rounded mr-3 text-gold">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v8"/><path d="M16 2v8"/><path d="M2 22h20"/><path d="M13 22v-8"/><path d="M18 22V10a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v12"/></svg>
-                                </span>
-                                Prototyping & Simulation
-                            </h4>
+                            <h4 class="text-xl font-bold mb-2 text-gold">Prototyping & Simulation</h4>
                             <p class="text-[#A3B1C6]">Modeling, Simulator Runs, Launch Scrubs</p>
                         </div>
                     </div>
 
-                    <!-- Step 3 -->
                     <div class="relative flex items-center md:justify-between md:flex-row">
                         <div class="hidden md:block md:w-[45%]"></div>
                         <div class="absolute left-0 md:left-1/2 w-8 h-8 rounded-full border-4 border-[#131B2A] bg-rust transform -translate-x-0 md:-translate-x-1/2 flex items-center justify-center z-10">
                             <span class="text-white text-xs font-bold">3</span>
                         </div>
                         <div class="w-full ml-12 md:ml-0 md:w-[45%] bg-[#1D2A40] p-6 rounded-xl border border-gray-700 hover:border-gold transition-colors">
-                            <h4 class="text-xl font-bold mb-2 flex items-center">
-                                <span class="bg-gray-800 p-1.5 rounded mr-3 text-gold">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-                                </span>
-                                Pre-Launch Prep
-                            </h4>
+                            <h4 class="text-xl font-bold mb-2 text-gold">Pre-Launch Prep</h4>
                             <p class="text-[#A3B1C6]">Transit to Pad, Fueling Complete</p>
                         </div>
                     </div>
 
-                    <!-- Step 4 -->
                     <div class="relative flex items-center md:justify-between md:flex-row-reverse">
                         <div class="hidden md:block md:w-[45%]"></div>
                         <div class="absolute left-0 md:left-1/2 w-8 h-8 rounded-full border-4 border-[#131B2A] bg-rust transform -translate-x-0 md:-translate-x-1/2 flex items-center justify-center z-10">
                             <span class="text-white text-xs font-bold">4</span>
                         </div>
                         <div class="w-full ml-12 md:ml-0 md:w-[45%] bg-[#1D2A40] p-6 rounded-xl border border-gray-700 hover:border-gold transition-colors">
-                            <h4 class="text-xl font-bold mb-2 flex items-center">
-                                <span class="bg-gray-800 p-1.5 rounded mr-3 text-gold">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/></svg>
-                                </span>
-                                Launch
-                            </h4>
+                            <h4 class="text-xl font-bold mb-2 text-gold">Launch</h4>
                             <p class="text-[#A3B1C6]">Ignition and liftoff. Putting the plan into immediate action.</p>
                         </div>
                     </div>
 
-                    <!-- Step 5 -->
                     <div class="relative flex items-center md:justify-between md:flex-row">
                         <div class="hidden md:block md:w-[45%]"></div>
                         <div class="absolute left-0 md:left-1/2 w-8 h-8 rounded-full border-4 border-[#131B2A] bg-rust transform -translate-x-0 md:-translate-x-1/2 flex items-center justify-center z-10">
                             <span class="text-white text-xs font-bold">5</span>
                         </div>
                         <div class="w-full ml-12 md:ml-0 md:w-[45%] bg-[#1D2A40] p-6 rounded-xl border border-gray-700 hover:border-gold transition-colors">
-                            <h4 class="text-xl font-bold mb-2 flex items-center">
-                                <span class="bg-gray-800 p-1.5 rounded mr-3 text-gold">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                                </span>
-                                Transit & Escape
-                            </h4>
+                            <h4 class="text-xl font-bold mb-2 text-gold">Transit & Escape</h4>
                             <p class="text-[#A3B1C6]">Countdown, Omnidirection, Escape Velocity</p>
                         </div>
                     </div>
 
-                    <!-- Step 6 -->
                     <div class="relative flex items-center md:justify-between md:flex-row-reverse">
                         <div class="hidden md:block md:w-[45%]"></div>
                         <div class="absolute left-0 md:left-1/2 w-8 h-8 rounded-full border-4 border-[#131B2A] bg-rust transform -translate-x-0 md:-translate-x-1/2 flex items-center justify-center z-10">
                             <span class="text-white text-xs font-bold">6</span>
                         </div>
                         <div class="w-full ml-12 md:ml-0 md:w-[45%] bg-[#1D2A40] p-6 rounded-xl border border-gray-700 hover:border-gold transition-colors">
-                            <h4 class="text-xl font-bold mb-2 flex items-center">
-                                <span class="bg-gray-800 p-1.5 rounded mr-3 text-gold">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                                </span>
-                                Monitor & Manage
-                            </h4>
+                            <h4 class="text-xl font-bold mb-2 text-gold">Monitor & Manage</h4>
                             <p class="text-[#A3B1C6]">Telemetry, Corrections, Fly-by/Close Pass</p>
                         </div>
                     </div>
 
-                    <!-- Step 7 -->
                     <div class="relative flex items-center md:justify-between md:flex-row">
                         <div class="hidden md:block md:w-[45%]"></div>
                         <div class="absolute left-0 md:left-1/2 w-8 h-8 rounded-full border-4 border-[#131B2A] bg-rust transform -translate-x-0 md:-translate-x-1/2 flex items-center justify-center z-10">
                             <span class="text-white text-xs font-bold">7</span>
                         </div>
                         <div class="w-full ml-12 md:ml-0 md:w-[45%] bg-[#1D2A40] p-6 rounded-xl border border-gray-700 hover:border-gold transition-colors">
-                            <h4 class="text-xl font-bold mb-2 flex items-center">
-                                <span class="bg-gray-800 p-1.5 rounded mr-3 text-gold">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 10V2"/><path d="M5 19.33 19 19.33"/><path d="M12 10 7 14"/><path d="M12 10 17 14"/><circle cx="12" cy="12" r="10"/></svg>
-                                </span>
-                                Stable Orbit
-                            </h4>
+                            <h4 class="text-xl font-bold mb-2 text-gold">Stable Orbit</h4>
                             <p class="text-[#A3B1C6]">Sustained Success, Data Acquisition, Next Mission</p>
                         </div>
                     </div>
@@ -319,14 +284,14 @@
     </section>
 
     <!-- CTA Section -->
-    <section class="py-24 bg-[#1D2A40] relative border-t border-gray-800 overflow-hidden">
-        <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-rust mx-auto mb-6 opacity-80 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M3 20c0-2.209 1.791-4 4-4h10c2.209 0 4 1.791 4 4"/><path d="M7 16V4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v12"/></svg>
+    <section class="py-24 bg-[#1D2A40] relative border-t border-gray-800 overflow-hidden text-center">
+        <div class="max-w-4xl mx-auto px-4 relative z-10">
+            <img src="Screenshot 2026-04-10 at 7.56.58 PM.jpg" alt="Stable Orbit" class="w-20 h-20 mx-auto mb-8 rounded-full opacity-80">
             <h2 class="text-4xl font-bold mb-6">Ready to Accelerate Your Thoughts?</h2>
             <p class="text-xl text-[#A3B1C6] mb-10">
                 Don't let complex challenges ground your business. Let's design the architecture for your next successful launch.
             </p>
-            <button class="bg-rust text-white px-10 py-5 rounded-full text-xl font-bold hover:bg-[#BF4F2F] transition-all transform hover:-translate-y-1 shadow-lg shadow-orange-900/30 flex items-center mx-auto">
+            <button class="bg-rust text-white px-10 py-5 rounded-full text-xl font-bold hover:bg-[#BF4F2F] transition-all transform hover:-translate-y-1 shadow-lg shadow-orange-900/30 inline-flex items-center">
                 Initiate Contact 
                 <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </button>
@@ -336,10 +301,8 @@
     <!-- Footer -->
     <footer class="bg-[#0B101A] py-16 border-t border-gray-900">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
-            <div class="flex items-center space-x-2 mb-6 md:mb-0">
-                <div class="w-8 h-8 rounded-full border border-rust flex items-center justify-center">
-                    <div class="w-4 h-4 rounded-full bg-rust"></div>
-                </div>
+            <div class="flex items-center space-x-3 mb-6 md:mb-0">
+                <img src="Screenshot 2026-04-10 at 7.56.58 PM.jpg" alt="Logo" class="w-10 h-10 rounded-full">
                 <span class="font-bold text-xl tracking-wider uppercase">Stable Orbit</span>
             </div>
             
