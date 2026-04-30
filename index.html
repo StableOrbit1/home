@@ -1,0 +1,1468 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Havoc 205 - Team Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar for horizontal scrolling on large tables */
+        .table-container::-webkit-scrollbar { height: 8px; }
+        .table-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        .table-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .table-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Sticky column styling */
+        .sticky-col { position: sticky; left: 0; background-color: white; z-index: 10; border-right: 2px solid #e2e8f0; }
+        
+        /* Dropdown colors */
+        .status-attending { background-color: #dcfce7; color: #166534; }
+        .status-not-attending { background-color: #fee2e2; color: #991b1b; }
+        .status-unsure { background-color: #f3f4f6; color: #4b5563; }
+        
+        .skill-high { background-color: #dbeafe; color: #1e40af; }
+        .skill-medium { background-color: #fef08a; color: #854d0e; }
+        .skill-low { background-color: #ffedd5; color: #c2410c; }
+        .skill-none { background-color: #f3f4f6; color: #9ca3af; }
+
+        /* Lineup Colors */
+        .lineup-SitOut { background-color: #f3f4f6; color: #4b5563; }
+        .lineup-Pitcher { background-color: #fee2e2; color: #991b1b; font-weight: 600; }
+        .lineup-Catcher { background-color: #ffedd5; color: #9a3412; font-weight: 600; }
+        .lineup-Infield { background-color: #dbeafe; color: #1e40af; }
+        .lineup-Outfield { background-color: #dcfce7; color: #166534; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-blue-900 text-white shadow-md border-b-4 border-yellow-400">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+            <h1 class="text-2xl font-bold tracking-tight uppercase text-yellow-400">Havoc 205</h1>
+            <div class="flex items-center gap-3">
+                <!-- Sync Indicator -->
+                <span id="sync-status" class="hidden text-xs text-green-300 font-medium">● Syncing</span>
+                <span class="text-sm bg-blue-950 text-yellow-400 px-3 py-1 rounded-full border border-blue-800 shadow-inner">U13 House League</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="bg-white shadow border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex overflow-x-auto hide-scroll-bar gap-2 pt-2 items-end" aria-label="Tabs">
+                
+                <!-- Game Tabs (Light) -->
+                <button onclick="switchTab('full-schedule')" id="tab-full-schedule" class="tab-btn whitespace-nowrap py-3 px-4 border-b-4 font-bold text-sm border-yellow-400 text-blue-900 transition-colors">
+                    Schedule
+                </button>
+                <button onclick="switchTab('schedule')" id="tab-schedule" class="tab-btn whitespace-nowrap py-3 px-4 border-b-4 border-transparent font-medium text-sm text-gray-500 hover:text-blue-800 hover:border-gray-300 transition-colors">
+                    Availability
+                </button>
+                <button onclick="switchTab('lineup')" id="tab-lineup" class="tab-btn whitespace-nowrap py-3 px-4 border-b-4 border-transparent font-medium text-sm text-gray-500 hover:text-blue-800 hover:border-gray-300 transition-colors">
+                    Next Game Lineup
+                </button>
+                <button onclick="switchTab('results')" id="tab-results" class="tab-btn whitespace-nowrap py-3 px-4 border-b-4 border-transparent font-medium text-sm text-gray-500 hover:text-blue-800 hover:border-gray-300 transition-colors">
+                    Game Results
+                </button>
+
+                <!-- Divider -->
+                <div class="w-px h-6 bg-gray-300 mx-2 mb-3 shrink-0"></div>
+
+                <!-- Team Tabs (Dark/Inverse) -->
+                <button onclick="switchTab('matrix')" id="tab-matrix" data-theme="dark" class="tab-btn rounded-t-md whitespace-nowrap py-3 px-4 border-b-4 border-transparent font-medium text-sm text-blue-200 bg-blue-900 hover:text-white hover:bg-blue-800 transition-colors">
+                    Position Matrix
+                </button>
+                <button onclick="switchTab('contacts')" id="tab-contacts" data-theme="dark" class="tab-btn rounded-t-md whitespace-nowrap py-3 px-4 border-b-4 border-transparent font-medium text-sm text-blue-200 bg-blue-900 hover:text-white hover:bg-blue-800 transition-colors">
+                    Contacts
+                </button>
+                <button onclick="switchTab('teamwork')" id="tab-teamwork" data-theme="dark" class="tab-btn rounded-t-md whitespace-nowrap py-3 px-4 border-b-4 border-transparent font-medium text-sm text-blue-200 bg-blue-900 hover:text-white hover:bg-blue-800 transition-colors">
+                    Team Work
+                </button>
+                <button onclick="switchTab('rules')" id="tab-rules" data-theme="dark" class="tab-btn rounded-t-md whitespace-nowrap py-3 px-4 border-b-4 border-transparent font-medium text-sm text-blue-200 bg-blue-900 hover:text-white hover:bg-blue-800 transition-colors">
+                    League Rules
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- TAB 0: Full Schedule -->
+        <section id="content-full-schedule" class="tab-content block">
+            <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-blue-900">Team Schedule</h2>
+                    <p class="text-sm text-gray-500 mt-1">All upcoming practices and games with times and locations.</p>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <!-- NEW: ICS Upload Button Container -->
+                    <label class="px-4 py-2 bg-yellow-400 text-blue-900 text-sm font-bold rounded-md hover:bg-yellow-500 transition-colors shadow-sm flex justify-center items-center cursor-pointer">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        Import .ics Calendar
+                        <input type="file" accept=".ics" onchange="handleICSImport(event)" class="hidden">
+                    </label>
+                    <button id="toggle-past-schedule-btn" onclick="togglePastSchedule()" class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-300 transition-colors hidden shadow-sm border border-gray-300">
+                        Show Past Events
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white shadow rounded-lg overflow-hidden border border-gray-200">
+                <div class="overflow-x-auto w-full">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th scope="col" class="py-3 px-4 text-left text-xs font-semibold text-blue-900 uppercase tracking-wider">Date</th>
+                                <th scope="col" class="py-3 px-4 text-left text-xs font-semibold text-blue-900 uppercase tracking-wider">Time</th>
+                                <th scope="col" class="py-3 px-4 text-left text-xs font-semibold text-blue-900 uppercase tracking-wider">Event</th>
+                                <th scope="col" class="py-3 px-4 text-left text-xs font-semibold text-blue-900 uppercase tracking-wider">Location</th>
+                                <th scope="col" class="py-3 px-4 text-left text-xs font-semibold text-blue-900 uppercase tracking-wider">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="full-schedule-body" class="bg-white divide-y divide-gray-200">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 1: Schedule & Availability -->
+        <section id="content-schedule" class="tab-content hidden">
+            <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-blue-900">Event Availability</h2>
+                    <p class="text-sm text-gray-500 mt-1">Select player availability for Games & Practices. Past events are hidden automatically.</p>
+                </div>
+                <button id="toggle-past-btn" onclick="togglePastGames()" class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-300 transition-colors hidden shadow-sm border border-gray-300">
+                    Show Past Events
+                </button>
+            </div>
+
+            <div class="bg-white shadow rounded-lg overflow-hidden border border-gray-200">
+                <div class="table-container overflow-x-auto w-full">
+                    <table class="min-w-full divide-y divide-gray-200" style="min-width: 800px;">
+                        <thead class="bg-gray-100" id="schedule-head">
+                            <!-- Populated by JS -->
+                        </thead>
+                        <tbody id="schedule-body" class="bg-white divide-y divide-gray-200">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: Lineup Builder -->
+        <section id="content-lineup" class="tab-content hidden">
+            <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-blue-900">Lineup Builder</h2>
+                    <p class="text-sm text-gray-500 mt-1">Assign 9 positions per inning. Auto-swaps protect against duplicates.</p>
+                </div>
+                <div class="w-full sm:w-auto flex flex-col sm:flex-row gap-3">
+                    <button onclick="autoBuildLineup()" class="w-full sm:w-auto bg-yellow-400 text-blue-900 font-bold px-4 py-2 rounded-md hover:bg-yellow-500 transition-colors shadow flex justify-center items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        Auto-Build
+                    </button>
+                    <select id="lineup-game-select" onchange="renderLineup()" class="block w-full sm:w-64 pl-3 pr-8 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-900 focus:border-blue-900 sm:text-sm rounded-md shadow-sm border">
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="bg-white shadow rounded-lg overflow-hidden border border-gray-200">
+                <div class="table-container overflow-x-auto w-full">
+                    <table class="min-w-full divide-y divide-gray-200" style="min-width: 950px;">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th scope="col" class="sticky-col py-3 px-4 text-left text-xs font-semibold text-blue-900 uppercase tracking-wider w-40">Available Players</th>
+                                <th scope="col" class="py-3 px-2 text-center text-xs font-semibold text-blue-900 uppercase tracking-wider w-24">Inn 1</th>
+                                <th scope="col" class="py-3 px-2 text-center text-xs font-semibold text-blue-900 uppercase tracking-wider w-24">Inn 2</th>
+                                <th scope="col" class="py-3 px-2 text-center text-xs font-semibold text-blue-900 uppercase tracking-wider w-24">Inn 3</th>
+                                <th scope="col" class="py-3 px-2 text-center text-xs font-semibold text-blue-900 uppercase tracking-wider w-24">Inn 4</th>
+                                <th scope="col" class="py-3 px-2 text-center text-xs font-semibold text-blue-900 uppercase tracking-wider w-24">Inn 5</th>
+                                <th scope="col" class="py-3 px-2 text-center text-xs font-semibold text-blue-900 uppercase tracking-wider w-24">Inn 6</th>
+                                <th scope="col" class="py-3 px-2 text-center text-xs font-semibold text-blue-900 uppercase tracking-wider w-20">Sits</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lineup-body" class="bg-white divide-y divide-gray-200">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="lineup-empty-state" class="hidden p-8 text-center text-gray-500">
+                    No available players found for this game. Check the Availability tab.
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: Game Results & League Submission -->
+        <section id="content-results" class="tab-content hidden">
+            
+            <!-- Score Sheet Submission Panel -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-5 mb-8 shadow-sm">
+                <h3 class="text-lg font-bold text-blue-900 mb-3 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    Official Score Submission
+                </h3>
+                <p class="text-sm text-gray-600 mb-4">Send results to Mgsa@live.ca and cc lizdinelle@hotmail.com. Remember to attach the photo of the score sheet!</p>
+                <div class="flex flex-col md:flex-row gap-4 items-start md:items-end">
+                    <div class="w-full md:w-1/3">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Select Game</label>
+                        <select id="league-game-select" class="block w-full pl-3 pr-8 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-900 focus:border-blue-900 sm:text-sm rounded-md shadow-sm border">
+                            <!-- Populated by JS -->
+                        </select>
+                    </div>
+                    <div class="w-full md:w-1/3">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Score Sheet Photo</label>
+                        <input type="file" id="scoresheet-upload" accept="image/*" onchange="previewScoreSheet(event)" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 transition-colors">
+                    </div>
+                    <div class="w-full md:w-1/3">
+                        <button onclick="emailLeague()" class="w-full bg-blue-900 text-yellow-400 font-bold px-4 py-2 rounded-md hover:bg-blue-800 transition-colors shadow flex justify-center items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                            Draft Email to League
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Image Preview Area -->
+                <div id="preview-container" class="hidden mt-4">
+                    <p class="text-xs font-semibold text-gray-600 mb-1">Score Sheet Preview:</p>
+                    <img id="scoresheet-preview" class="max-h-48 rounded shadow-sm border border-gray-300" />
+                    <p class="text-xs text-red-600 font-bold mt-2 flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        Important: You must manually attach this photo to the email window that opens.
+                    </p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h2 class="text-xl font-bold text-blue-900">Schedule & Game Results</h2>
+                <p class="text-sm text-gray-500">Set upcoming opponents, record final scores, and share directly to WhatsApp.</p>
+            </div>
+
+            <div class="bg-white shadow rounded-lg overflow-hidden border border-gray-200">
+                <div class="overflow-x-auto w-full">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th scope="col" class="py-3 px-4 text-left text-xs font-semibold text-blue-900 uppercase tracking-wider w-16">Game #</th>
+                                <th scope="col" class="py-3 px-4 text-left text-xs font-semibold text-blue-900 uppercase tracking-wider w-32">Date</th>
+                                <th scope="col" class="py-3 px-4 text-left text-xs font-semibold text-blue-900 uppercase tracking-wider">Opponent Team</th>
+                                <th scope="col" class="py-3 px-4 text-center text-xs font-semibold text-blue-900 uppercase tracking-wider">Havoc Runs</th>
+                                <th scope="col" class="py-3 px-4 text-center text-xs font-semibold text-blue-900 uppercase tracking-wider">Opp Runs</th>
+                                <th scope="col" class="py-3 px-4 text-right text-xs font-semibold text-blue-900 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-body" class="bg-white divide-y divide-gray-200">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: Position Matrix -->
+        <section id="content-matrix" class="tab-content hidden">
+            <div class="mb-6">
+                <h2 class="text-xl font-bold text-blue-900">Player Position Comfort Matrix</h2>
+                <p class="text-sm text-gray-500 mt-1">Track each player's comfort level (High, Medium, Low) at key positions.</p>
+            </div>
+            
+            <div class="bg-white shadow rounded-lg overflow-hidden border border-gray-200">
+                <div class="table-container overflow-x-auto w-full">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th scope="col" class="sticky-col py-3 px-4 text-left text-xs font-semibold text-blue-900 uppercase tracking-wider">Player Name</th>
+                                <th scope="col" class="py-3 px-4 text-left text-xs font-semibold text-blue-900 uppercase tracking-wider">Catcher</th>
+                                <th scope="col" class="py-3 px-4 text-left text-xs font-semibold text-blue-900 uppercase tracking-wider">Pitcher</th>
+                                <th scope="col" class="py-3 px-4 text-left text-xs font-semibold text-blue-900 uppercase tracking-wider">1st Base</th>
+                                <th scope="col" class="py-3 px-4 text-left text-xs font-semibold text-blue-900 uppercase tracking-wider">Infield</th>
+                                <th scope="col" class="py-3 px-4 text-left text-xs font-semibold text-blue-900 uppercase tracking-wider">Outfield</th>
+                            </tr>
+                        </thead>
+                        <tbody id="matrix-body" class="bg-white divide-y divide-gray-200">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: Contacts -->
+        <section id="content-contacts" class="tab-content hidden">
+            <div class="mb-6">
+                <h2 class="text-xl font-bold text-blue-900">Team Contacts</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Coaches Section -->
+                <div class="md:col-span-1">
+                    <h3 class="text-lg font-semibold text-blue-900 mb-3 border-b-2 border-yellow-400 pb-2">Coaches / Volunteers</h3>
+                    <div class="space-y-4" id="coaches-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Players Section -->
+                <div class="md:col-span-2">
+                    <h3 class="text-lg font-semibold text-blue-900 mb-3 border-b-2 border-yellow-400 pb-2">Player Roster</h3>
+                    <div class="bg-white shadow rounded-lg overflow-hidden border border-gray-200">
+                        <ul class="divide-y divide-gray-200" id="contacts-list">
+                            <!-- Populated by JS -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 6: Team Work -->
+        <section id="content-teamwork" class="tab-content hidden">
+            <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-blue-900">Team Work & Practice Plans</h2>
+                    <p class="text-sm text-gray-500 mt-1">Agendas, drills, and team goals for Havoc 205.</p>
+                </div>
+                <div class="w-full sm:w-64">
+                    <select id="practice-plan-select" onchange="renderPracticePlan(this.value)" class="block w-full pl-3 pr-8 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-900 focus:border-blue-900 sm:text-sm rounded-md shadow-sm border">
+                        <option value="">-- View Practice Plans --</option>
+                        <option value="practice-1">Practice 1</option>
+                        <option value="practice-2">Practice 2</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Dynamic Practice Plan Container -->
+            <div id="practice-plan-container" class="bg-white shadow rounded-lg border border-gray-200 p-6 mb-8 border-t-4 border-t-yellow-400 hidden">
+                <!-- Rendered via JS -->
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Goals / Working On -->
+                <div class="bg-white shadow rounded-lg border border-gray-200 p-6 border-t-4 border-t-blue-900">
+                    <h3 class="text-lg font-bold text-blue-900 mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path></svg>
+                        What Havoc 205 is Working On
+                    </h3>
+                    <ul class="space-y-3 text-gray-700">
+                        <li class="flex items-start">
+                            <span class="text-yellow-500 font-bold mr-2 text-lg leading-tight">1.</span>
+                            <span><strong>Communication ("I got it!"):</strong> Calling the ball early and loudly in the field to prevent collisions and missed plays.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-yellow-500 font-bold mr-2 text-lg leading-tight">2.</span>
+                            <span><strong>Aggressive Base Running:</strong> Looking for the extra base, taking leads only after the ball crosses home plate, and anticipating passed balls.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-yellow-500 font-bold mr-2 text-lg leading-tight">3.</span>
+                            <span><strong>Backing Up Every Throw:</strong> There is no standing still on defense. Every throw to a base needs an outfielder or secondary infielder behind it.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- At Home Drills -->
+                <div class="bg-white shadow rounded-lg border border-gray-200 p-6 border-t-4 border-t-yellow-400">
+                    <h3 class="text-lg font-bold text-blue-900 mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-blue-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                        Softball At-Home Practice Drills
+                    </h3>
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-800">Wall Ball (Fielding)</h4>
+                            <p class="text-sm text-gray-600 mt-1">Using a tennis ball against a brick wall. Practice forehand, backhand, and straight-on grounders. Emphasize soft hands.</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800">Grip & Transfer</h4>
+                            <p class="text-sm text-gray-600 mt-1">Toss a ball lightly into your glove, reach in and pull it out with a proper 4-seam grip as fast as possible to build muscle memory.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 7: League Rules -->
+        <section id="content-rules" class="tab-content hidden">
+            <!-- ZERO TOLERANCE BANNER -->
+            <div class="bg-red-600 text-white rounded-lg shadow-md p-5 mb-6">
+                <h3 class="text-lg font-bold flex items-center mb-2">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    ZERO TOLERANCE POLICY: YOUTH UMPIRES
+                </h3>
+                <p class="text-sm text-red-50">Please be reminded that many of our officials are youth umpires. The league enforces a strict <strong>Zero Tolerance Policy</strong> for any issues, arguments, or abuse directed at umpires. Coaches are responsible for the behavior of their staff, players, and parents.</p>
+            </div>
+
+            <div class="mb-6 flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-bold text-blue-900">MEGS 2026 Youth By-Laws</h2>
+                    <p class="text-sm text-gray-500 mt-1">Official rule guidelines for the U13 Division.</p>
+                </div>
+                <div class="hidden sm:block">
+                    <span class="bg-red-100 text-red-800 text-xs font-bold px-3 py-1 rounded border border-red-200">U13 Specific</span>
+                </div>
+            </div>
+
+            <div class="bg-white shadow rounded-lg border border-gray-200 overflow-hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200">
+                    
+                    <!-- Left Column -->
+                    <div class="p-6 space-y-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-blue-900 border-b pb-2 mb-3">Game Duration & Roster</h3>
+                            <ul class="space-y-2 text-sm text-gray-700">
+                                <li><strong class="text-blue-900">Total Innings:</strong> Games are scheduled for <strong>6 innings</strong>.</li>
+                                <li><strong class="text-blue-900">Minimum Players & Late Arrivals:</strong> A team must have a minimum of <strong>7 players</strong> to field a team and start the game. If a player shows up late, they must be added to the bottom of the batting order (bottom of the inning).</li>
+                                <li><strong class="text-blue-900">Continuous Batting:</strong> All players on the roster must bat in a continuous order.</li>
+                                <li><strong class="text-blue-900">Mandatory Play (Sitting):</strong> Coaches must ensure fair defensive rotation. <strong>No player may sit out more than 2 innings per game.</strong></li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-bold text-blue-900 border-b pb-2 mb-3">Field Dimensions</h3>
+                            <ul class="space-y-2 text-sm text-gray-700">
+                                <li><strong class="text-blue-900">Pitching Distance:</strong> The pitching rubber is set at <strong>38 feet</strong> for the U13 division.</li>
+                                <li><strong class="text-blue-900">Base Paths:</strong> Bases are set at <strong>55 feet</strong> (standard U13) or 60 feet depending on field configuration.</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-bold text-blue-900 border-b pb-2 mb-3">Base Running</h3>
+                            <ul class="space-y-2 text-sm text-gray-700">
+                                <li><strong class="text-blue-900">Leading Off:</strong> Runners cannot take a lead until the pitched ball crosses home plate.</li>
+                                <li><strong class="text-blue-900">Advancing on a Walk:</strong> In one continuous motion, a batter-runner who receives a walk may advance to and attempt to take 2nd base. This is permitted <strong>even if the pitcher has the ball inside the pitching circle.</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="p-6 space-y-6 bg-gray-50">
+                        <div>
+                            <h3 class="text-lg font-bold text-blue-900 border-b pb-2 mb-3">Mercy Rules</h3>
+                            <ul class="space-y-3 text-sm text-gray-700">
+                                <li class="bg-white p-3 rounded border shadow-sm">
+                                    <strong class="block text-blue-900 mb-1">Per Inning Limits:</strong> 
+                                    Innings 1 through 4 are capped at a maximum of <strong>5 runs</strong> per team. 
+                                    Innings 5 and 6 are capped at a maximum of <strong>8 runs</strong> per team.
+                                </li>
+                                <li class="bg-white p-3 rounded border shadow-sm">
+                                    <strong class="block text-blue-900 mb-1">Game Mercy (15 Runs):</strong>
+                                    The game is called if a team is leading by 15 runs after <strong>3 or more full innings</strong>.
+                                </li>
+                                <li class="bg-white p-3 rounded border shadow-sm">
+                                    <strong class="block text-blue-900 mb-1">Game Mercy (10 Runs):</strong>
+                                    The game is called if a team is leading by 10 runs after <strong>4 or more full innings</strong> (or 3½ innings if the home team is ahead).
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-bold text-blue-900 border-b pb-2 mb-3">Pitching Restrictions</h3>
+                            <ul class="space-y-2 text-sm text-gray-700">
+                                <li><strong class="text-blue-900">Inning Limits:</strong> Pitchers are restricted to a maximum of <strong>3 innings</strong> per game to protect their arms.</li>
+                                <li><strong class="text-blue-900">Definition:</strong> Delivering one single pitch in an inning constitutes a full inning pitched for the purpose of this rule.</li>
+                                <li><strong class="text-blue-900">Hit Batters:</strong> If a pitcher hits <strong>3 batters</strong> in a game, they must be removed from the pitching position immediately.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JavaScript implemented as an ES module for Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Core Data Initialization ---
+        const players = [
+            { name: "Carson, Blythe", phone: "647-220-1086", email: "Doug@douglasmacdonald.com" },
+            { name: "Flannagan, Paige", phone: "416-453-3526", email: "Cflanpersonal@gmail.com" },
+            { name: "Gdyczynski, Brittany", phone: "416-888-7845", email: "Lindsay_bernett@hotmail.com" },
+            { name: "Guerra, Scarlett rose", phone: "647-518-5551", email: "Manda.rodrigues@live.com" },
+            { name: "Lalka, Oksana", phone: "416-617-7232", email: "Natalie.lalka@gmail.com" },
+            { name: "Macdonald, Chloe", phone: "647-299-8022", email: "Kjohearn@gmail.com" },
+            { name: "Macedo, Cynthia", phone: "416-827-3131", email: "Mmc828314@gmail.com" },
+            { name: "Mazzucco, Mariella", phone: "416-820-1788", email: "Luigi_mazz@yahoo.com" },
+            { name: "Nico, Emilia", phone: "647-781-8077", email: "nico_daniela@hotmail.com" },
+            { name: "Pimentel, Amelia", phone: "647-339-4191", email: "Kujoe4@hotmail.com" },
+            { name: "Sousa, Sienna", phone: "416-528-9844", email: "carla.sousa04@gmail.com" },
+            { name: "Studart, Malu", phone: "437-224-8114", email: "gabistudart@gmail.com" },
+            { name: "Vilche, Sophia", phone: "647-920-3329", email: "stephanievilche@gmail.com" }
+        ];
+        
+        const coaches = [
+            { name: "Craig Flannagan", role: "Volunteer", phone: "416-453-3526", email: "cflanpersonal@gmail.com", risSent: true },
+            { name: "Jorge Guerra", role: "Volunteer", phone: "N/A", email: "Jorgeguerra081@gmail.com", risSent: true },
+            { name: "Jose Pimentel", role: "Volunteer", phone: "647-339-4191", email: "Kujoe4@hotmail.com", risSent: true }
+        ];
+
+        // --- Practice Plans Data ---
+        const practicePlans = {
+            "practice-1": {
+                title: "Practice 1: Introductions & Basics",
+                agenda: [
+                    { time: "6:30 - 6:40", title: "Arrive / Setup" },
+                    { time: "6:40 - 6:50", title: "Name Game" },
+                    { time: "6:50 - 7:00", title: "Position Comfort Convo" },
+                    { time: "7:00 - 7:10", title: "Ground Ball 3s" },
+                    { time: "7:10 - 7:20", title: "Break / Water (Catcher Suit Up)" },
+                    { time: "7:20 - 7:30", title: "Fly Ball Cut offs" },
+                    { time: "7:30 - 8:00", title: "Scrimmage" }
+                ],
+                drills: [
+                    { 
+                        name: "The Name Game", 
+                        desc: "Players form a large circle. The player with the ball makes eye contact, calls out a teammate's name loudly, and throws a crisp chest-high pass. Great for warming up arms and ensuring everyone learns each other's names quickly." 
+                    },
+                    { 
+                        name: "Ground Ball 3s", 
+                        desc: "Three players get together: one hits or throws a ground ball, one catches it, and throws it to the third player. The batter and catcher stay together. Then they rotate positions so everyone gets a chance to do everything." 
+                    },
+                    { 
+                        name: "Fly Ball Cut Offs", 
+                        desc: "Send outfielders deep. Hit fly balls to them. Have infielders rotate acting as the 'cutoff' person. The infielder must run out, throw their hands up as a big target, and loudly yell 'Hit me!'. Emphasize the outfielder hitting the cutoff target on a line. The drill ends with a strong throw from the cutoff person to the catcher." 
+                    }
+                ]
+            },
+            "practice-2": {
+                title: "Practice 2: Positional Focus",
+                agenda: [
+                    { time: "6:30 - 6:40", title: "Arrive / Setup" },
+                    { time: "6:40 - 6:50", title: "Name Game (Warm Up)" },
+                    { time: "6:50 - 7:10", title: "Stations: Pitchers/Catchers & Infielders" },
+                    { time: "7:10 - 7:30", title: "Stations: Outfielders & Infield/Catcher Coverages" },
+                    { time: "7:30 - 8:00", title: "Scrimmage" }
+                ],
+                drills: [
+                    { 
+                        name: "Pitcher & Catcher Bullpens", 
+                        desc: "Pitchers separate to work on throwing mechanics and hitting glove targets. Catchers practice their framing and focus heavily on dropping to their knees to block balls in the dirt. Keep a coach with this group to monitor pitch counts and arm health." 
+                    },
+                    { 
+                        name: "Infield Triangle Drill", 
+                        desc: "Focus on footwork. Infielders approach the ball keeping their glove out front, creating a 'triangle' between their two feet and the glove. Field, bring the ball to the chest to secure it, square the shoulders, and make a strong, accurate throw to first base." 
+                    },
+                    { 
+                        name: "Outfield Drop Steps", 
+                        desc: "Players start in an athletic stance facing the coach. The coach points left or right, and the player takes a quick 'drop-step' back with that foot and sprints back. The coach throws a fly ball for them to catch on the run. The goal is to break the habit of backpedaling." 
+                    }
+                ]
+            }
+        };
+
+        const positions = ['Catcher', 'Pitcher', '1st Base', 'Infield', 'Outfield'];
+        const lineupPositions = ['Sit Out', 'Pitcher', 'Catcher', '1st Base', '2nd Base', '3rd Base', 'Shortstop', 'Left Field', 'Center Field', 'Right Field'];
+        
+        // --- Schedule & Game/Practice Dates Logic ---
+        const schedule = [];
+        const games = [];
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); 
+        const seasonStartDate = new Date(today);
+        seasonStartDate.setDate(today.getDate() - 14); 
+
+        const gameLocations = ["Centennial Park D1", "West Deane Park D2", "Richview Park D3", "Neilson Park D1"];
+
+        for (let i = 0; i < 25; i++) {
+            const pracDate = new Date(seasonStartDate);
+            pracDate.setDate(seasonStartDate.getDate() + (i * 3)); 
+            
+            const gameDate = new Date(seasonStartDate);
+            gameDate.setDate(seasonStartDate.getDate() + (i * 3) + 1); 
+            
+            const gLoc = gameLocations[i % gameLocations.length];
+            
+            const prac = { id: `P${i + 1}`, type: 'Practice', num: i + 1, date: pracDate, isPast: pracDate < today, time: "6:30 PM", location: "West Deane Park D2" };
+            const game = { id: `G${i + 1}`, type: 'Game', num: i + 1, date: gameDate, isPast: gameDate < today, opponent: "", ourScore: "", theirScore: "", time: "6:30 PM", location: gLoc };
+            
+            schedule.push(prac);
+            schedule.push(game);
+            games.push(game);
+        }
+
+        // State Container
+        let teamState = {
+            matrix: {},
+            availability: {},
+            results: {},
+            lineups: {}
+        };
+
+        players.forEach(p => {
+            teamState.matrix[p.name] = { 'Catcher': 'none', 'Pitcher': 'none', '1st Base': 'none', 'Infield': 'none', 'Outfield': 'none' };
+            teamState.availability[p.name] = {};
+            
+            schedule.forEach(ev => {
+                teamState.availability[p.name][ev.id] = 'unsure';
+            });
+            
+            games.forEach(g => {
+                teamState.results[g.num] = { opponent: "", ourScore: "", theirScore: "" };
+                teamState.lineups[g.num] = teamState.lineups[g.num] || {};
+                teamState.lineups[g.num][p.name] = ['Sit Out', 'Sit Out', 'Sit Out', 'Sit Out', 'Sit Out', 'Sit Out'];
+            });
+        });
+
+        const safeId = (str) => String(str).replace(/[^a-zA-Z0-9-]/g, '');
+
+        let isShowingPastGames = false;
+        let isShowingPastSchedule = false;
+
+        // --- Tab Switching Logic ---
+        window.switchTab = function(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                const isDark = el.getAttribute('data-theme') === 'dark';
+                if (isDark) {
+                    el.classList.remove('border-yellow-400', 'text-yellow-400', 'font-bold', 'bg-blue-950');
+                    el.classList.add('border-transparent', 'text-blue-200', 'font-medium', 'bg-blue-900');
+                } else {
+                    el.classList.remove('border-yellow-400', 'text-blue-900', 'font-bold');
+                    el.classList.add('border-transparent', 'text-gray-500', 'font-medium');
+                }
+            });
+
+            document.getElementById(`content-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            const isActiveDark = activeBtn.getAttribute('data-theme') === 'dark';
+            
+            if (isActiveDark) {
+                activeBtn.classList.remove('border-transparent', 'text-blue-200', 'font-medium', 'bg-blue-900');
+                activeBtn.classList.add('border-yellow-400', 'text-yellow-400', 'font-bold', 'bg-blue-950');
+            } else {
+                activeBtn.classList.remove('border-transparent', 'text-gray-500', 'font-medium');
+                activeBtn.classList.add('border-yellow-400', 'text-blue-900', 'font-bold');
+            }
+
+            if (tabId === 'lineup') {
+                renderLineup();
+            } else if (tabId === 'teamwork') {
+                document.getElementById('practice-plan-select').value = 'practice-1';
+                renderPracticePlan('practice-1');
+            }
+        };
+
+        // --- Score Sheet Upload Handlers ---
+        window.previewScoreSheet = function(event) {
+            const file = event.target.files[0];
+            const previewContainer = document.getElementById('preview-container');
+            const previewImage = document.getElementById('scoresheet-preview');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    previewContainer.classList.remove('hidden');
+                }
+                reader.readAsDataURL(file);
+            } else {
+                previewContainer.classList.add('hidden');
+            }
+        };
+
+        window.emailLeague = function() {
+            const gameSelect = document.getElementById('league-game-select');
+            const gameNum = gameSelect.value;
+            
+            if (!gameNum) {
+                alert("Please select a game to report first.");
+                return;
+            }
+
+            const res = teamState.results[gameNum];
+            const opponentName = res.opponent.trim() || "[Opponent Name]";
+            const ourScore = res.ourScore.trim() || "[Score]";
+            const theirScore = res.theirScore.trim() || "[Score]";
+
+            const subject = `Havoc 205 - Game ${gameNum} Official Result (See attached Score Sheet)`;
+            const body = `Hello MEGS,\n\nHere is the official game result for Havoc 205 (U13):\n\nGame Number: ${gameNum}\nOpponent: ${opponentName}\n\nHavoc 205 Score: ${ourScore}\nOpponent Score: ${theirScore}\n\n*** IMPORTANT: PLEASE SEE ATTACHED PHOTO OF THE SCORE SHEET ***\n\nThank you,\nHavoc 205 Coaches`;
+            
+            const toEmail = "Mgsa@live.ca";
+            const ccEmail = "lizdinelle@hotmail.com";
+            const mailtoUrl = `mailto:${toEmail}?cc=${ccEmail}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.location.href = mailtoUrl;
+        };
+
+        // --- View Generators ---
+        function populateGameDropdowns() {
+            const resultDropdown = document.getElementById('league-game-select');
+            const lineupDropdown = document.getElementById('lineup-game-select');
+            
+            let optionsHtml = '<option value="">-- Choose a Game --</option>';
+            let firstUpcomingGame = null;
+            
+            games.forEach((game) => {
+                const dateStr = game.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                optionsHtml += `<option value="${game.num}">Game ${game.num} (${dateStr})</option>`;
+                if (!game.isPast && !firstUpcomingGame) firstUpcomingGame = game.num;
+            });
+            
+            if (resultDropdown) {
+                resultDropdown.innerHTML = optionsHtml;
+            }
+            if (lineupDropdown) {
+                lineupDropdown.innerHTML = optionsHtml;
+                if (firstUpcomingGame) {
+                    lineupDropdown.value = firstUpcomingGame;
+                }
+            }
+        }
+
+        function generateFullSchedule() {
+            const tbody = document.getElementById('full-schedule-body');
+            let html = '';
+            schedule.forEach(ev => {
+                const dateStr = ev.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                const visibilityClass = ev.isPast ? 'past-schedule-event hidden' : '';
+                const rowBg = ev.isPast ? 'bg-gray-50 opacity-75' : 'bg-white';
+                const typeColor = ev.type === 'Game' ? 'text-red-700' : 'text-blue-900';
+                
+                let detailsStr = '-';
+                if (ev.type === 'Game') {
+                    const opponentStr = teamState.results[ev.num]?.opponent || "";
+                    detailsStr = `<div class="flex items-center"><span class="mr-2 text-gray-500 text-xs font-bold">vs</span><input type="text" id="sched-opp-${ev.num}" value="${opponentStr}" placeholder="Opponent..." class="w-full text-sm border-gray-300 rounded-md shadow-sm focus:ring-blue-900 focus:border-blue-900 p-1 border bg-white" onchange="updateGameData(${ev.num}, 'opponent', this.value)"></div>`;
+                }
+
+                html += `
+                <tr class="hover:bg-blue-50 transition-colors ${visibilityClass} ${rowBg}">
+                    <td class="py-3 px-4 whitespace-nowrap text-sm font-medium text-gray-900 border-b border-gray-100">${dateStr}</td>
+                    <td class="py-3 px-4 whitespace-nowrap text-sm text-gray-600 border-b border-gray-100">${ev.time}</td>
+                    <td class="py-3 px-4 whitespace-nowrap text-sm font-bold ${typeColor} border-b border-gray-100">${ev.type} ${ev.num}</td>
+                    <td class="py-3 px-4 whitespace-nowrap text-sm text-gray-600 border-b border-gray-100">${ev.location}</td>
+                    <td class="py-3 px-4 whitespace-nowrap text-sm text-gray-600 border-b border-gray-100">${detailsStr}</td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+
+            const btn = document.getElementById('toggle-past-schedule-btn');
+            let pastEventsCount = schedule.filter(e => e.isPast).length;
+            if (pastEventsCount > 0) {
+                btn.classList.remove('hidden');
+                btn.innerText = `Show Past Events (${pastEventsCount})`;
+            }
+        }
+
+        window.togglePastSchedule = function() {
+            isShowingPastSchedule = !isShowingPastSchedule;
+            document.querySelectorAll('.past-schedule-event').forEach(row => {
+                isShowingPastSchedule ? row.classList.remove('hidden') : row.classList.add('hidden');
+            });
+
+            const btn = document.getElementById('toggle-past-schedule-btn');
+            let pastEventsCount = schedule.filter(e => e.isPast).length;
+            
+            if (isShowingPastSchedule) {
+                btn.innerText = "Hide Past Events";
+                btn.classList.replace('bg-gray-200', 'bg-blue-900');
+                btn.classList.replace('text-gray-700', 'text-yellow-400');
+            } else {
+                btn.innerText = `Show Past Events (${pastEventsCount})`;
+                btn.classList.replace('bg-blue-900', 'bg-gray-200');
+                btn.classList.replace('text-yellow-400', 'text-gray-700');
+            }
+        };
+
+        // --- NEW: Handle ICS File Import ---
+        window.handleICSImport = function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // In a real implementation, you would parse the text of the .ics file here.
+                // For now, we will just acknowledge the file selection.
+                alert(`Selected calendar file: ${file.name}\n\nNote: ICS parsing logic needs to be implemented to update the schedule.`);
+            }
+            // Reset the input so the same file can be uploaded again if needed
+            event.target.value = '';
+        };
+
+        window.renderPracticePlan = function(planId) {
+            const container = document.getElementById('practice-plan-container');
+            if (!planId || !practicePlans[planId]) {
+                container.classList.add('hidden');
+                return;
+            }
+
+            const plan = practicePlans[planId];
+            
+            let agendaHtml = `
+                <div class="mb-6 md:mb-0">
+                    <h3 class="text-lg font-bold text-blue-900 mb-4 border-b border-gray-200 pb-2">Schedule</h3>
+                    <ul class="space-y-3">
+            `;
+            plan.agenda.forEach(item => {
+                agendaHtml += `
+                    <li class="flex items-start">
+                        <span class="text-sm font-bold text-blue-900 w-24 flex-shrink-0 pt-0.5">${item.time}</span>
+                        <span class="text-sm text-gray-700 bg-blue-50 px-3 py-1 rounded w-full border border-blue-100">${item.title}</span>
+                    </li>
+                `;
+            });
+            agendaHtml += `</ul></div>`;
+
+            let drillsHtml = `
+                <div>
+                    <h3 class="text-lg font-bold text-blue-900 mb-4 border-b border-gray-200 pb-2">Drill Details</h3>
+                    <div class="space-y-4">
+            `;
+            plan.drills.forEach(drill => {
+                drillsHtml += `
+                    <div class="bg-gray-50 p-3 rounded border border-gray-200">
+                        <h4 class="font-bold text-sm text-blue-900 mb-1 flex items-center">
+                            <svg class="w-4 h-4 mr-1 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            ${drill.name}
+                        </h4>
+                        <p class="text-sm text-gray-600">${drill.desc}</p>
+                    </div>
+                `;
+            });
+            drillsHtml += `</div></div>`;
+
+            container.innerHTML = `
+                <h2 class="text-xl font-bold text-blue-900 mb-4">${plan.title}</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    ${agendaHtml}
+                    ${drillsHtml}
+                </div>
+            `;
+            container.classList.remove('hidden');
+        }
+
+        window.renderLineup = function() {
+            const gameNum = document.getElementById('lineup-game-select').value;
+            const tbody = document.getElementById('lineup-body');
+            const emptyState = document.getElementById('lineup-empty-state');
+            
+            if (!gameNum) {
+                tbody.innerHTML = '';
+                return;
+            }
+
+            // Only show players who are explicitly confirmed as attending for this GAME
+            const availablePlayers = players.filter(p => teamState.availability[p.name]['G' + gameNum] === 'attending');
+
+            if (availablePlayers.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            let html = '';
+            availablePlayers.forEach(player => {
+                const positionsAssigned = teamState.lineups[gameNum][player.name] || ['Sit Out', 'Sit Out', 'Sit Out', 'Sit Out', 'Sit Out', 'Sit Out'];
+                
+                html += `<tr class="hover:bg-gray-50 transition-colors">
+                    <td class="sticky-col py-2 px-4 whitespace-nowrap text-sm font-bold text-gray-900 border-b border-gray-100">${player.name}</td>`;
+                
+                for (let inn = 0; inn < 6; inn++) {
+                    const currentPos = positionsAssigned[inn];
+                    const safeClass = getLineupClass(currentPos);
+                    
+                    html += `
+                    <td class="py-2 px-1 whitespace-nowrap border-b border-gray-100">
+                        <select id="lineup-${gameNum}-${safeId(player.name)}-${inn}" onchange="updateLineupPosition(this, '${player.name}', ${inn})" class="${safeClass} w-full text-center py-1 text-[11px] border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-900 transition-colors cursor-pointer shadow-sm">`;
+                        
+                    lineupPositions.forEach(p => {
+                        html += `<option value="${p}" ${currentPos === p ? 'selected' : ''}>${p}</option>`;
+                    });
+                    
+                    html += `</select></td>`;
+                }
+
+                // Calculate Sit Count right away
+                const sitCount = positionsAssigned.filter(p => p === 'Sit Out').length;
+                const sitClass = sitCount > 2 ? "text-xs font-bold text-red-600 bg-red-100 px-2 py-1 rounded" : "text-xs font-bold text-gray-700 bg-gray-100 px-2 py-1 rounded";
+
+                html += `
+                    <td class="py-2 px-2 whitespace-nowrap text-center border-b border-gray-100">
+                        <span id="sitcount-${gameNum}-${safeId(player.name)}" class="${sitClass}">${sitCount}</span>
+                    </td>
+                </tr>`;
+            });
+
+            tbody.innerHTML = html;
+        };
+
+        function getLineupClass(pos) {
+            if (pos === 'Sit Out') return 'lineup-SitOut';
+            if (pos === 'Pitcher') return 'lineup-Pitcher';
+            if (pos === 'Catcher') return 'lineup-Catcher';
+            if (pos.includes('Field')) return 'lineup-Outfield';
+            return 'lineup-Infield';
+        }
+
+        function generatePositionMatrix() {
+            const tbody = document.getElementById('matrix-body');
+            let html = '';
+            players.forEach(player => {
+                html += `<tr class="hover:bg-gray-50 transition-colors">
+                    <td class="sticky-col py-2 px-4 whitespace-nowrap text-sm font-medium text-gray-900 border-b border-gray-100">${player.name}</td>`;
+                positions.forEach(pos => {
+                    const val = teamState.matrix[player.name][pos];
+                    html += `
+                    <td class="py-2 px-4 whitespace-nowrap border-b border-gray-100">
+                        <select id="matrix-${safeId(player.name)}-${safeId(pos)}" onchange="updateSkillColor(this, '${player.name}', '${pos}')" class="skill-${val} mt-1 block w-full pl-3 pr-8 py-1.5 text-base border-gray-300 focus:outline-none focus:ring-blue-900 focus:border-blue-900 sm:text-sm rounded-md shadow-sm transition-colors cursor-pointer border">
+                            <option value="none" ${val === 'none' ? 'selected' : ''}>Select...</option>
+                            <option value="high" ${val === 'high' ? 'selected' : ''}>High</option>
+                            <option value="medium" ${val === 'medium' ? 'selected' : ''}>Medium</option>
+                            <option value="low" ${val === 'low' ? 'selected' : ''}>Low</option>
+                        </select>
+                    </td>`;
+                });
+                html += `</tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function renderAvailabilityCounts() {
+            schedule.forEach(ev => {
+                let count = 0;
+                players.forEach(p => {
+                    if (teamState.availability[p.name] && teamState.availability[p.name][ev.id] === 'attending') {
+                        count++;
+                    }
+                });
+                const countEl = document.getElementById(`count-${ev.id}`);
+                if (countEl) {
+                    countEl.innerText = `${count} Avail`;
+                    if (count < 7) {
+                        countEl.className = "text-[10px] font-bold px-1.5 py-0.5 rounded mt-1 inline-block bg-red-200 text-red-800";
+                    } else if (count < 9) { // 7 or 8 players
+                        countEl.className = "text-[10px] font-bold px-1.5 py-0.5 rounded mt-1 inline-block bg-yellow-200 text-yellow-800";
+                    } else { // 9+ players
+                        countEl.className = "text-[10px] font-bold px-1.5 py-0.5 rounded mt-1 inline-block bg-green-200 text-green-800";
+                    }
+                }
+            });
+        }
+
+        function generateAvailability() {
+            const thead = document.getElementById('schedule-head');
+            let headHtml = `<tr><th scope="col" class="sticky-col py-3 px-4 text-left text-xs font-semibold text-blue-900 uppercase tracking-wider w-48 border-b-2 border-gray-200 z-20">Player Name</th>`;
+            
+            schedule.forEach(ev => {
+                const dateStr = ev.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                const visibilityClass = ev.isPast ? 'past-game hidden' : '';
+                const bgClass = ev.isPast ? 'bg-gray-200 opacity-75' : 'bg-gray-100';
+                
+                let currentIndicator = '';
+                if (ev.date.getTime() === today.getTime()) {
+                    currentIndicator = '<span class="inline-block bg-yellow-400 text-blue-900 px-1.5 py-0.5 rounded text-[10px] font-bold mt-1 shadow-sm">TODAY</span>';
+                }
+
+                headHtml += `
+                <th scope="col" class="${visibilityClass} py-3 px-2 text-center border-b-2 border-gray-200 ${bgClass} w-32 relative">
+                    <div class="text-xs font-bold text-gray-700 uppercase tracking-wider">${ev.type} ${ev.num}</div>
+                    <div class="text-[11px] text-gray-500 font-normal mt-0.5">${dateStr}</div>
+                    <div id="count-${ev.id}"></div>
+                    ${currentIndicator}
+                </th>`;
+            });
+            headHtml += `</tr>`;
+            thead.innerHTML = headHtml;
+
+            const tbody = document.getElementById('schedule-body');
+            let bodyHtml = '';
+            players.forEach(player => {
+                bodyHtml += `<tr class="hover:bg-gray-50 transition-colors">
+                    <td class="sticky-col py-2 px-4 whitespace-nowrap text-sm font-medium text-gray-900 border-b border-gray-100 z-10">${player.name}</td>`;
+                
+                schedule.forEach(ev => {
+                    const visibilityClass = ev.isPast ? 'past-game hidden' : '';
+                    const bgClass = ev.isPast ? 'bg-gray-50' : '';
+                    const val = teamState.availability[player.name][ev.id] || 'unsure';
+                    
+                    bodyHtml += `
+                    <td class="${visibilityClass} ${bgClass} py-2 px-2 whitespace-nowrap border-b border-gray-100">
+                        <select id="avail-${safeId(player.name)}-${ev.id}" onchange="updateStatusColor(this, '${player.name}', '${ev.id}')" class="status-${val} w-full text-center py-1.5 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-900 transition-colors cursor-pointer shadow-sm">
+                            <option value="unsure" ${val === 'unsure' ? 'selected' : ''}>Unsure</option>
+                            <option value="attending" ${val === 'attending' ? 'selected' : ''}>Attending</option>
+                            <option value="not-attending" ${val === 'not-attending' ? 'selected' : ''}>Not Attending</option>
+                        </select>
+                    </td>`;
+                });
+                bodyHtml += `</tr>`;
+            });
+            tbody.innerHTML = bodyHtml;
+
+            const btn = document.getElementById('toggle-past-btn');
+            let pastEventsCount = schedule.filter(e => e.isPast).length;
+            if (pastEventsCount > 0) {
+                btn.classList.remove('hidden');
+                btn.innerText = `Show Past Events (${pastEventsCount})`;
+            }
+
+            renderAvailabilityCounts();
+        }
+
+        window.togglePastGames = function() {
+            isShowingPastGames = !isShowingPastGames;
+            document.querySelectorAll('.past-game').forEach(cell => {
+                isShowingPastGames ? cell.classList.remove('hidden') : cell.classList.add('hidden');
+            });
+
+            const btn = document.getElementById('toggle-past-btn');
+            let pastEventsCount = schedule.filter(e => e.isPast).length;
+            
+            if (isShowingPastGames) {
+                btn.innerText = "Hide Past Events";
+                btn.classList.replace('bg-gray-200', 'bg-blue-900');
+                btn.classList.replace('text-gray-700', 'text-yellow-400');
+            } else {
+                btn.innerText = `Show Past Events (${pastEventsCount})`;
+                btn.classList.replace('bg-blue-900', 'bg-gray-200');
+                btn.classList.replace('text-yellow-400', 'text-gray-700');
+            }
+        };
+
+        function generateResults() {
+            const tbody = document.getElementById('results-body');
+            
+            let html = '';
+            games.forEach((game, index) => {
+                const dateStr = game.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                const rowBg = game.isPast ? 'bg-gray-50' : 'bg-white';
+                const res = teamState.results[game.num];
+                
+                const opponentStr = res.opponent.trim() !== '' ? res.opponent : 'TBD';
+
+                html += `
+                <tr class="hover:bg-blue-50 transition-colors ${rowBg}">
+                    <td class="py-3 px-4 whitespace-nowrap text-sm font-medium text-gray-900 border-b border-gray-100">${game.num}</td>
+                    <td class="py-3 px-4 whitespace-nowrap text-sm text-gray-600 border-b border-gray-100">${dateStr}</td>
+                    <td class="py-3 px-4 whitespace-nowrap text-sm text-gray-900 font-bold border-b border-gray-100" id="opp-${game.num}">
+                        ${opponentStr}
+                    </td>
+                    <td class="py-3 px-4 whitespace-nowrap border-b border-gray-100 text-center">
+                        <input type="number" id="us-${game.num}" value="${res.ourScore}" min="0" placeholder="-" class="w-16 text-center text-sm font-bold border-gray-300 rounded-md shadow-sm focus:ring-blue-900 focus:border-blue-900 p-1.5 border" onchange="updateGameData(${game.num}, 'ourScore', this.value)">
+                    </td>
+                    <td class="py-3 px-4 whitespace-nowrap border-b border-gray-100 text-center">
+                        <input type="number" id="them-${game.num}" value="${res.theirScore}" min="0" placeholder="-" class="w-16 text-center text-sm font-bold border-gray-300 rounded-md shadow-sm focus:ring-blue-900 focus:border-blue-900 p-1.5 border" onchange="updateGameData(${game.num}, 'theirScore', this.value)">
+                    </td>
+                    <td class="py-3 px-4 whitespace-nowrap border-b border-gray-100 text-right">
+                        <button onclick="shareWhatsApp(${index})" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                            <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                            WhatsApp
+                        </button>
+                    </td>
+                </tr>`;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        // --- Selective DOM Updater to Prevent Input Focus Stealing when Firebase Syncs ---
+        function updateDOMfromState() {
+            // Lineups Sync
+            const activeGame = document.getElementById('lineup-game-select')?.value;
+            if (activeGame && teamState.lineups[activeGame]) {
+                const availablePlayers = players.filter(p => teamState.availability[p.name]['G' + activeGame] === 'attending');
+                availablePlayers.forEach(p => {
+                    for(let i=0; i<6; i++) {
+                        const el = document.getElementById(`lineup-${activeGame}-${safeId(p.name)}-${i}`);
+                        if (el) {
+                            const val = teamState.lineups[activeGame][p.name][i];
+                            if (document.activeElement !== el && el.value !== val) {
+                                el.value = val;
+                                el.className = `${getLineupClass(val)} w-full text-center py-1 text-[11px] border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-900 transition-colors cursor-pointer shadow-sm`;
+                            }
+                        }
+                    }
+                });
+                updateSitCounts(activeGame);
+            }
+
+            // Matrix Sync
+            players.forEach(p => {
+                positions.forEach(pos => {
+                    const el = document.getElementById(`matrix-${safeId(p.name)}-${safeId(pos)}`);
+                    const val = teamState.matrix[p.name][pos];
+                    if (el && document.activeElement !== el && el.value !== val) {
+                        el.value = val;
+                        el.className = `mt-1 block w-full pl-3 pr-8 py-1.5 text-base border-gray-300 focus:outline-none focus:ring-blue-900 focus:border-blue-900 sm:text-sm rounded-md shadow-sm transition-colors cursor-pointer border skill-${val}`;
+                    }
+                });
+            });
+            
+            // Availability Sync
+            players.forEach(p => {
+                schedule.forEach(ev => {
+                    const el = document.getElementById(`avail-${safeId(p.name)}-${ev.id}`);
+                    const val = teamState.availability[p.name][ev.id];
+                    if (el && document.activeElement !== el && el.value !== val) {
+                        el.value = val;
+                        el.className = `w-full text-center py-1.5 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-900 transition-colors cursor-pointer shadow-sm status-${val}`;
+                    }
+                });
+            });
+
+            renderAvailabilityCounts();
+
+            // Results Sync
+            games.forEach((g) => {
+                const oppEl = document.getElementById(`opp-${g.num}`);
+                const usEl = document.getElementById(`us-${g.num}`);
+                const themEl = document.getElementById(`them-${g.num}`);
+                const res = teamState.results[g.num];
+                
+                if (usEl && document.activeElement !== usEl && usEl.value !== res.ourScore) usEl.value = res.ourScore;
+                if (themEl && document.activeElement !== themEl && themEl.value !== res.theirScore) themEl.value = res.theirScore;
+                
+                // Update Schedule input
+                const schedOppEl = document.getElementById(`sched-opp-${g.num}`);
+                if (schedOppEl && document.activeElement !== schedOppEl && schedOppEl.value !== res.opponent) {
+                    schedOppEl.value = res.opponent;
+                }
+
+                // Update Results text
+                if (oppEl) {
+                    const opponentText = res.opponent.trim() !== '' ? res.opponent : 'TBD';
+                    if (oppEl.innerText !== opponentText) {
+                        oppEl.innerText = opponentText;
+                    }
+                }
+            });
+        }
+
+        // --- Data Update Handlers ---
+        window.autoBuildLineup = function() {
+            const gameSelect = document.getElementById('lineup-game-select');
+            const gameNum = gameSelect.value;
+            if (!gameNum) {
+                alert("Please select a game first.");
+                return;
+            }
+
+            const availablePlayers = players.filter(p => teamState.availability[p.name]['G' + gameNum] === 'attending');
+            if (availablePlayers.length === 0) {
+                alert("No confirmed attending players for this game. Check the Availability tab.");
+                return;
+            }
+
+            // Initialize empty lineup for this game
+            availablePlayers.forEach(p => {
+                teamState.lineups[gameNum][p.name] = ['Sit Out', 'Sit Out', 'Sit Out', 'Sit Out', 'Sit Out', 'Sit Out'];
+            });
+
+            const numPlayers = availablePlayers.length;
+            const numSitOutsPerInning = Math.max(0, numPlayers - 9);
+            const sitCounts = {};
+            availablePlayers.forEach(p => sitCounts[p.name] = 0);
+
+            // Core 9 positions ordered by rough defensive priority
+            const posRequirements = ['Pitcher', 'Catcher', '1st Base', 'Shortstop', '3rd Base', '2nd Base', 'Center Field', 'Left Field', 'Right Field'];
+            
+            // Map the specific lineup positions back to the generic Comfort Matrix categories
+            const matrixMap = {
+                'Pitcher': 'Pitcher', 'Catcher': 'Catcher', '1st Base': '1st Base',
+                'Shortstop': 'Infield', '3rd Base': 'Infield', '2nd Base': 'Infield',
+                'Center Field': 'Outfield', 'Left Field': 'Outfield', 'Right Field': 'Outfield'
+            };
+
+            for (let inn = 0; inn < 6; inn++) {
+                // 1. Determine Sit Outs for this inning
+                let pool = [...availablePlayers];
+                
+                // Shuffle pool to introduce randomness before sorting
+                pool.sort(() => Math.random() - 0.5);
+                // Sort by sit count ascending to ensure fairness (players with fewest sits are chosen to sit next to spread it out)
+                pool.sort((a, b) => sitCounts[a.name] - sitCounts[b.name]);
+                
+                const sittingThisInning = pool.slice(0, numSitOutsPerInning);
+                const activeThisInning = pool.slice(numSitOutsPerInning);
+
+                sittingThisInning.forEach(p => {
+                    teamState.lineups[gameNum][p.name][inn] = 'Sit Out';
+                    sitCounts[p.name]++;
+                });
+
+                // 2. Assign Positions for active players
+                let availablePos = posRequirements.slice(0, activeThisInning.length);
+                
+                availablePos.forEach(pos => {
+                    const matrixCategory = matrixMap[pos];
+                    
+                    // Weight players based on their comfort matrix
+                    let candidates = activeThisInning.map(p => {
+                        const comfort = teamState.matrix[p.name][matrixCategory];
+                        let weight = 1; // Base weight (None)
+                        if (comfort === 'high') weight = 10;
+                        if (comfort === 'medium') weight = 5;
+                        if (comfort === 'low') weight = 2;
+                        return { player: p, weight };
+                    });
+
+                    // Weighted random choice selection
+                    const totalWeight = candidates.reduce((sum, c) => sum + c.weight, 0);
+                    let randomVal = Math.random() * totalWeight;
+                    let selectedPlayer = candidates[0].player;
+                    
+                    for (let c of candidates) {
+                        randomVal -= c.weight;
+                        if (randomVal <= 0) {
+                            selectedPlayer = c.player;
+                            break;
+                        }
+                    }
+
+                    teamState.lineups[gameNum][selectedPlayer.name][inn] = pos;
+                    
+                    // Remove selected player from active pool for the next position loop
+                    activeThisInning.splice(activeThisInning.findIndex(p => p.name === selectedPlayer.name), 1);
+                });
+                
+                // Any remaining active players get 'Sit Out' (fallback)
+                activeThisInning.forEach(p => {
+                    teamState.lineups[gameNum][p.name][inn] = 'Sit Out';
+                    sitCounts[p.name]++;
+                });
+            }
+
+            saveToFirebase();
+            renderLineup();
+        };
+
+        window.updateLineupPosition = function(selectElem, playerName, inningIdx) {
+            const gameSelect = document.getElementById('lineup-game-select');
+            const gameNum = gameSelect.value;
+            const newPos = selectElem.value;
+            const oldPos = teamState.lineups[gameNum][playerName][inningIdx];
+
+            if (newPos !== 'Sit Out') {
+                // Auto-swap collision protection
+                const availablePlayers = players.filter(p => teamState.availability[p.name]['G' + gameNum] === 'attending');
+                for (let otherPlayer of availablePlayers) {
+                    if (otherPlayer.name !== playerName && teamState.lineups[gameNum][otherPlayer.name][inningIdx] === newPos) {
+                        // Swap other player to the old position
+                        teamState.lineups[gameNum][otherPlayer.name][inningIdx] = oldPos;
+                        const otherEl = document.getElementById(`lineup-${gameNum}-${safeId(otherPlayer.name)}-${inningIdx}`);
+                        if (otherEl) {
+                            otherEl.value = oldPos;
+                            otherEl.className = `${getLineupClass(oldPos)} w-full text-center py-1 text-[11px] border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-900 transition-colors cursor-pointer shadow-sm`;
+                        }
+                        break; 
+                    }
+                }
+            }
+
+            teamState.lineups[gameNum][playerName][inningIdx] = newPos;
+            selectElem.className = `${getLineupClass(newPos)} w-full text-center py-1 text-[11px] border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-900 transition-colors cursor-pointer shadow-sm`;
+            
+            updateSitCounts(gameNum);
+            saveToFirebase();
+        };
+
+        function updateSitCounts(gameNum) {
+            const availablePlayers = players.filter(p => teamState.availability[p.name]['G' + gameNum] === 'attending');
+            availablePlayers.forEach(p => {
+                let sitCount = teamState.lineups[gameNum][p.name].filter(pos => pos === 'Sit Out').length;
+                const countEl = document.getElementById(`sitcount-${gameNum}-${safeId(p.name)}`);
+                if (countEl) {
+                    countEl.innerText = sitCount;
+                    if (sitCount > 2) {
+                        countEl.className = "text-xs font-bold text-red-600 bg-red-100 px-2 py-1 rounded border border-red-200";
+                    } else {
+                        countEl.className = "text-xs font-bold text-gray-700 bg-gray-100 px-2 py-1 rounded";
+                    }
+                }
+            });
+        }
+
+        window.updateSkillColor = function(selectElem, playerName, position) {
+            selectElem.className = `mt-1 block w-full pl-3 pr-8 py-1.5 text-base border-gray-300 focus:outline-none focus:ring-blue-900 focus:border-blue-900 sm:text-sm rounded-md shadow-sm transition-colors cursor-pointer border skill-${selectElem.value}`;
+            teamState.matrix[playerName][position] = selectElem.value;
+            saveToFirebase();
+        };
+
+        window.updateStatusColor = function(selectElem, playerName, eventId) {
+            selectElem.className = `w-full text-center py-1.5 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-900 transition-colors cursor-pointer shadow-sm status-${selectElem.value}`;
+            teamState.availability[playerName][eventId] = selectElem.value;
+            
+            renderAvailabilityCounts();
+
+            // If currently looking at lineup for this game, refresh the lineup table
+            const activeTab = document.querySelector('.tab-btn.border-yellow-400').id;
+            const activeLineupGame = document.getElementById('lineup-game-select').value;
+            if (activeTab === 'tab-lineup' && 'G' + activeLineupGame === eventId) {
+                renderLineup();
+            }
+
+            saveToFirebase();
+        };
+
+        window.updateGameData = function(gameNum, field, value) {
+            teamState.results[gameNum][field] = value;
+            saveToFirebase();
+        };
+
+        window.shareWhatsApp = function(index) {
+            const game = games[index];
+            const dateStr = game.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            
+            const res = teamState.results[game.num];
+            const opponentName = res.opponent.trim() || "Opponent";
+            const ourScore = res.ourScore.trim() || "?";
+            const theirScore = res.theirScore.trim() || "?";
+
+            const resultStatus = (parseInt(ourScore) > parseInt(theirScore)) ? "🎉 Great Win!" : 
+                                 (parseInt(ourScore) < parseInt(theirScore)) ? "💪 Tough game, we'll get 'em next time." : 
+                                 "🤝 Tie Game!";
+
+            const text = `⚾ *Havoc 205 Game Result* ⚾\n\n*Date:* ${dateStr}\n*Score:* Havoc 205 [ ${ourScore} ] - [ ${theirScore} ] ${opponentName}\n\n${resultStatus}`;
+            
+            const encodedText = encodeURIComponent(text);
+            const whatsappUrl = `https://wa.me/?text=${encodedText}`;
+            window.open(whatsappUrl, '_blank');
+        };
+
+        function generateContacts() {
+            const coachesDiv = document.getElementById('coaches-list');
+            let coachesHtml = '';
+            coaches.forEach(coach => {
+                const risBadge = coach.risSent 
+                    ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-green-100 text-green-800 border border-green-200">RiS: Sent ✓</span>`
+                    : `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-red-100 text-red-800 border border-red-200">RiS: Pending</span>`;
+
+                coachesHtml += `
+                <div class="bg-white p-4 rounded-lg shadow border border-gray-200 border-l-4 border-l-yellow-400">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-bold text-blue-900">${coach.name}</p>
+                            <p class="text-xs font-bold text-yellow-600 mb-2">${coach.role}</p>
+                        </div>
+                        ${risBadge}
+                    </div>
+                    <p class="text-sm text-gray-600 mt-1 flex items-center"><svg class="w-4 h-4 mr-2 text-blue-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg> ${coach.phone}</p>
+                    <p class="text-sm text-gray-600 mt-1 flex items-center"><svg class="w-4 h-4 mr-2 text-blue-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg> <a href="mailto:${coach.email}" class="text-blue-600 hover:underline">${coach.email}</a></p>
+                </div>`;
+            });
+            coachesDiv.innerHTML = coachesHtml;
+
+            const playersUl = document.getElementById('contacts-list');
+            let playersHtml = '';
+            players.forEach((player, index) => {
+                playersHtml += `
+                <li class="px-4 py-4 sm:px-6 hover:bg-gray-50 flex flex-col sm:flex-row justify-between sm:items-center transition-colors">
+                    <div class="mb-2 sm:mb-0">
+                        <p class="text-sm font-bold text-blue-900 truncate">${player.name}</p>
+                        <p class="text-sm text-gray-500 truncate flex items-center mt-1">
+                            <span class="bg-gray-200 text-blue-900 font-medium text-xs px-2 py-0.5 rounded mr-2 border border-gray-300">Player #${index + 1}</span>
+                        </p>
+                    </div>
+                    <div class="text-sm text-gray-600 flex flex-col sm:text-right space-y-1">
+                        <span class="flex items-center sm:justify-end"><svg class="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg> ${player.phone}</span>
+                        <span class="flex items-center sm:justify-end"><svg class="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg> <a href="mailto:${player.email}" class="text-blue-600 hover:underline">${player.email}</a></span>
+                    </div>
+                </li>`;
+            });
+            playersUl.innerHTML = playersHtml;
+        }
+
+        // --- FIREBASE INITIALIZATION & SYNC LOGIC ---
+        let app, auth, db, currentUser = null, docRef = null, isFirebaseReady = false;
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD9VZJTpe-Rgz31kiaIzLDX2zutEcx5PgU",
+            authDomain: "havok205-9b090.firebaseapp.com",
+            projectId: "havok205-9b090",
+            storageBucket: "havok205-9b090.firebasestorage.app",
+            messagingSenderId: "89324820118",
+            appId: "1:89324820118:web:9c65b1401146c3d07b14b7"
+        };
+
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            isFirebaseReady = true;
+        } catch(e) {
+            console.error("Firebase init skipped:", e);
+        }
+
+        async function saveToFirebase() {
+            if (!isFirebaseReady || !currentUser || !docRef) return;
+            document.getElementById('sync-status').classList.remove('hidden'); 
+            
+            try {
+                await updateDoc(docRef, {
+                    matrix: teamState.matrix,
+                    availability: teamState.availability,
+                    results: teamState.results,
+                    lineups: teamState.lineups
+                });
+            } catch (e) {
+                await setDoc(docRef, teamState);
+            }
+            
+            setTimeout(() => document.getElementById('sync-status').classList.add('hidden'), 500);
+        }
+
+        window.onload = async function() {
+            populateGameDropdowns();
+            generateFullSchedule();
+            generatePositionMatrix();
+            generateAvailability();
+            generateResults();
+            generateContacts();
+
+            if (isFirebaseReady) {
+                docRef = doc(db, 'havoc205', 'state');
+                
+                try {
+                    await signInAnonymously(auth);
+                } catch(e) {
+                    console.error("Auth error", e);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        currentUser = user;
+                        
+                        onSnapshot(docRef, (snapshot) => {
+                            if (snapshot.exists()) {
+                                const data = snapshot.data();
+                                
+                                // MIGRATION logic for old numeric availability keys
+                                if (data.availability) {
+                                    Object.keys(data.availability).forEach(playerName => {
+                                        Object.keys(data.availability[playerName]).forEach(key => {
+                                            if (!isNaN(key)) { // if old numerical game key exists
+                                                data.availability[playerName]['G' + key] = data.availability[playerName][key];
+                                            }
+                                        });
+                                    });
+                                }
+
+                                if (data.matrix) teamState.matrix = { ...teamState.matrix, ...data.matrix };
+                                if (data.availability) teamState.availability = { ...teamState.availability, ...data.availability };
+                                if (data.results) teamState.results = { ...teamState.results, ...data.results };
+                                if (data.lineups) teamState.lineups = data.lineups; 
+                                
+                                updateDOMfromState();
+                            } else {
+                                setDoc(docRef, teamState).catch(console.error);
+                            }
+                        }, (error) => {
+                            console.error("Snapshot error:", error);
+                        });
+                    } else {
+                        currentUser = null;
+                    }
+                });
+            }
+        };
+    </script>
+</body>
+</html>
+
+
+
+
